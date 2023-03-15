@@ -16,9 +16,7 @@ sub run {
     wait_still_screen(2);
     diag('Ensure packagekit is not interfering with zypper calls');
     assert_script_run('systemctl mask --now packagekit');
-
-    my @packages = qw( docker );
-    assert_script_run("zypper -n in @packages", timeout => 600);
+    assert_script_run("zypper -n in docker", timeout => 600);
     assert_script_run "systemctl start docker";
     enter_cmd "exit";
 
@@ -26,10 +24,10 @@ sub run {
     switch_to_x11;
     demosleep 1;
     ensure_unlocked_desktop();
+
     demosleep 2;
     x11_start_program("xterm", 60, {valid => 1});
     demosleep 4;
-    type_string "which firefox\n";
     type_string "firefox $url &\n";
     demosleep 1;
     assert_screen 'ff-playgound-start', 50;
@@ -46,13 +44,14 @@ sub run {
     assert_screen 'ff-run-docker-hint';
     demosleep 2;
     assert_and_dclick 'ff-run-docker-hint-match-command', timeout => 10;
+    demosleep 1;
     send_key 'alt-tab';
     assert_screen 'xterm-prompt', 10;
     enter_cmd "sudo docker run --rm -p 31337:31337 -d yamlio/yaml-play-sandbox:0.1.32 31337";
-    demosleep 2;
+    demosleep 1;
     type_string $testapi::password . "\n";
     assert_screen "ff-playground-docker-started", 40;
-    demosleep 2;
+    demosleep 1;
     send_key 'alt-tab';
 
     demosleep 2;
@@ -67,16 +66,16 @@ sub run {
     demosleep 1;
     assert_and_click 'ff-playgound-local-cert-error-advanced-scrolled-down', timeout => 10;
 
+    demosleep 1;
     assert_and_click 'ff-playgound-local-cert-error-advanced-accept-risk', timeout => 10;
 
     demosleep 1;
     assert_and_click 'ff-run-docker-hint';
     demosleep 5;
+
     assert_screen 'ff-playgound-start-with-docker', 10;
-    demosleep 5;
-    send_key 'down';
-    send_key 'down';
-    send_key 'down';
+    demosleep 3;
+    send_key 'down' for 1..3;
     demosleep 1;
     send_key 'ret';
 
